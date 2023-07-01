@@ -9,9 +9,8 @@ def secret_number():
     answer = request.cookies.get("answer")
 
     if not answer or answer == 0:
-        answer = random.randint(1, 10)
         response = make_response(render_template("secretNumber.html"))
-        response.set_cookie("answer", str(answer))
+        create_answer(response)
         return response
 
     else:
@@ -28,12 +27,21 @@ def check_answer():
     if answer == secret:
 
         dialog = f"{str(secret)}: CORRECT"
+        response = make_response(render_template("checkAnswer.html"))
+        create_answer(response)
 
         return render_template("checkAnswer.html", answer=answer, result=dialog)
     else:
 
         dialog = f"{str(secret)}: INCORRECT"
         return render_template("checkAnswer.html", answer=answer, result=dialog)
+
+
+def create_answer(response):
+    answer = random.randint(1, 30)
+    response.set_cookie("answer", str(answer))
+    print(response)
+    return response
 
 
 if __name__ == "__main__":

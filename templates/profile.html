@@ -1,0 +1,19 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+<h1>Hello {{ user_data.email }}</h1>
+<p>Your data is as follows</p>
+<dl>
+  <dt>ID</dt>
+  <dd>{{user_data.id}}</dd>
+  <dt>Email</dt>
+  <dd>{{user_data.email}}</dd>
+  <dt>Session token</dt>
+  <dd>**********-****-****-****-{{user_data.session_token[24:]}}</dd>
+</dl>
+<a href="/users/profile/edit" class="btn btn-primary">Edit profile data</a>
+<a href="/users/profile/delete" class="btn btn-danger">Delete profile data</a>
+
+
+{% endblock body %}

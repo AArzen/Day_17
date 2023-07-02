@@ -1,0 +1,48 @@
+{% extends "/base.html" %}
+
+{% block body %}
+{% if message %}
+<p class="alert alert-warning">{{ message }}</p>
+{% endif %}
+
+<h1>{{ user_data.email }} update profile data</h1>
+<dl>
+    <dt>ID</dt>
+    <dd>{{user_data.id}}</dd>
+    <dt>Email</dt>
+    <dd>{{user_data.email}}</dd>
+    <dt>Session token</dt>
+    <dd>**********-****-****-****-{{user_data.session_token[24:]}}</dd>
+</dl>
+
+<form method="post" action="/users/profile/edit">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email"
+               value="{{user_data.email}}">
+    </div>
+    <div class="mb-3 row">
+        <div class="mb-3 col">
+            <label for="pass1" class="form-label">Password</label>
+            <input type="password" class="form-control {% if message %}is-invalid{% endif %}" id="pass1" aria-describedby="emailHelp" name="pass1">
+            {% if message %}
+            <div class="invalid-feedback">
+                Please enter valid password
+            </div>
+            {% endif %}
+        </div>
+        <div class="mb-3 col">
+            <label for="pass2" class="form-label">Repeat Password</label>
+            <input type="password" class="form-control {% if message %}is-invalid{% endif %}" id="pass2" aria-describedby="emailHelp" name="pass2">
+                        {% if message %}
+            <div  class="invalid-feedback">
+                Please enter valid password
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Update profile data</button>
+</form>
+
+
+{% endblock body %}

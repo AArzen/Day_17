@@ -1,0 +1,15 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+<h1 class="alert alert-danger">Do you really want to delete your account?</h1>
+
+<form method="post" action="/users/profile/delete">
+    <div class="mb-3">
+  <a href="/users/profile" class="btn btn-primary">No, keep the account</a>
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </div>
+</form>
+
+
+{% endblock body %}

@@ -23,7 +23,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users">Users</a>
@@ -34,12 +34,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/users/login">Login</a>
                     </li>
-                    {% if user %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Welcome {{ user }} </a>
+                        <a class="nav-link" href="/users/profile">My Profile </a>
                     </li>
-                    {% endif %}
-
                 </ul>
             </div>
         </div>

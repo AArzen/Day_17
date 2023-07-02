@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, url_for, redirect
 import random
 from sqla_wrapper import SQLAlchemy
 
@@ -26,14 +26,17 @@ def get_user():
         return None
     else:
         user = db.query(Users).filter_by(session_token=session_token).first()
-        user = user.email
     return user
 
 
 @app.route("/", methods=["GET"])
 def secret_number():
     answer = request.cookies.get("answer")
-    user = get_user()
+    if get_user() is not None:
+        user = get_user()
+        user = user.email
+    else:
+        user = ''
 
     if not answer or answer == 0:
         answer = random.randint(1, 30)
@@ -44,31 +47,29 @@ def secret_number():
     else:
         answer = answer
 
-    return render_template("secretNumber.html", answer=answer, user=user)
+    return render_template("secretNumber.html", answer=answer)
 
 
 @app.route("/answer", methods=["POST"])
 def check_answer():
     answer = int(request.cookies.get("answer"))
     secret = int(request.form.get("secret_number"))
-    user = get_user()
 
     if answer == secret:
 
         dialog = f"{str(secret)}: CORRECT"
 
-        return render_template("checkAnswer.html", answer=answer, result=dialog, user=user)
+        return render_template("checkAnswer.html", answer=answer, result=dialog)
     else:
 
         dialog = f"{str(secret)}: INCORRECT"
-        return render_template("checkAnswer.html", answer=answer, result=dialog, user=user)
+        return render_template("checkAnswer.html", answer=answer, result=dialog)
 
 
 @app.route("/users")
 def users():
     users = db.query(Users).all()
-    user = get_user()
-    return render_template("users.html", users=users, user=user)
+    return render_template("users.html", users=users)
 
 
 @app.route("/users/register", methods=["GET", "POST"])
@@ -99,27 +100,76 @@ def register():
 def login():
     if request.method == 'GET':
 
-        user = get_user()
-        return render_template("login.html", user=user)
+        return render_template("login.html")
     else:
         email_addr = request.form.get("email")
         password = request.form.get("password")
 
         user = db.query(Users).filter_by(email=email_addr).first()
-        hased_password = hashlib.sha256(password.encode()).hexdigest()
-
-        if user.password != hased_password:
-            return render_template("login.html", errMsg="Password incorrect")
         if user is None:
-            return render_template("login.html", errMsg="User not exist")
+            return render_template("message.html", message="Account not found!", type="danger", redirect=True)
+        else:
 
-        response = make_response(render_template("message.html", type="success", message="Succesfuly logged is", redirecti=True))
+            hased_password = hashlib.sha256(password.encode()).hexdigest()
 
-        session_token = str(uuid.uuid4())
-        user.session_token = session_token
-        user.save()
-        response.set_cookie("session_token", session_token)
-        return response
+            if user.password != hased_password:
+                return render_template("login.html", errMsg="Password incorrect")
+            if user is None:
+                return render_template("login.html", errMsg="User not exist")
+
+            response = make_response(render_template("message.html", type="success", message="Succesfuly logged is", redirecti=True))
+
+            session_token = str(uuid.uuid4())
+            user.session_token = session_token
+            user.save()
+            response.set_cookie("session_token", session_token)
+            return response
+
+
+@app.route("/users/profile")
+def profile_page():
+    user_data = get_user()
+
+    if user_data is None:
+        return redirect(url_for("login"))
+    return render_template("profile.html", user_data=user_data)
+
+
+@app.route("/users/profile/edit", methods=["GET", "POST"])
+def profile_page_edit():
+    user_data = get_user()
+    if user_data is None:
+        return redirect(url_for("login"))
+    else:
+        if request.method == 'GET':
+            return render_template("profile_edit.html", user_data=user_data)
+        else:
+            email = request.form.get("email")
+            pass1 = request.form.get("pass1")
+            pass2 = request.form.get("pass2")
+
+            if email != user_data.email:
+                user_data.email = email
+
+            if pass1 == pass2 and not pass1 == '':
+                hased_password = hashlib.sha256(pass1.encode()).hexdigest()
+                user_data.password = hased_password
+            elif pass1 != pass2:
+                return render_template("profile_Edit.html", user_data=user_data, message="password did not match")
+
+            user_data.save()
+            return redirect(url_for("profile_page"))
+
+
+@app.route("/users/profile/delete", methods=["GET", "POST"])
+def profile_page_delete():
+
+    if request.method == "POST":
+        user = get_user()
+        user.delete()
+        return render_template("message.html", message="Account deleted!", type="success", redirect=True)
+    else:
+        return render_template("profile_delete.html")
 
 
 if __name__ == "__main__":

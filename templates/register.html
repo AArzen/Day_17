@@ -1,0 +1,28 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+{% if errMsg %}
+<p class="alert alert-danger">{{ errMsg }}</p>
+{% endif%}
+
+<h1>To register fill the form below</h1>
+
+<form method="post" action="/users/register">
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="email">
+    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+  </div>
+    <div class="mb-3">
+    <label for="pass1" class="form-label">Password</label>
+    <input type="password" class="form-control" id="pass1" aria-describedby="emailHelp" name="pass1">
+  </div>
+      <div class="mb-3">
+    <label for="pass2" class="form-label">Repeat Password</label>
+    <input type="password" class="form-control" id="pass2" aria-describedby="emailHelp" name="pass2">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock body %}

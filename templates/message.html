@@ -1,0 +1,11 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+<p class="alert alert-{{type}}">{{ message }}</p>
+
+{% if redirect %}
+Return<a href="/">home</a>
+{% endif %}
+
+{% endblock body %}

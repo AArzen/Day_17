@@ -1,0 +1,22 @@
+{% extends "/base.html" %}
+
+{% block body %}
+<h1>Seznam uporabnikov</h1>
+<table class="table">
+    <tr>
+        <td>id</td>
+        <td>email</td>
+        <td>password</td>
+        <td>secret number</td>
+    </tr>
+{% for user in users %}
+<tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.email }}</td>
+    <td>{{ user.password }}</td>
+    <td>{{ user.secret_number }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock body %}

@@ -1,3 +1,5 @@
+import hashlib
+import uuid
 from flask import Flask, render_template, request, make_response
 import random
 from sqla_wrapper import SQLAlchemy
@@ -9,17 +11,23 @@ db = SQLAlchemy("sqlite:///database.sqlite")
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    #user_name = db.Column(db.String, unique=False)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String, unique=False)
     secret_number = db.Column(db.Integer, unique=False)
+    session_token = db.Column(db.String, unique=True)
 
 
 db.create_all()
 
 
 def get_user():
-    return request.cookies.get("user_logged_in")
+    session_token = request.cookies.get("session_token")
+    if session_token is None:
+        return None
+    else:
+        user = db.query(Users).filter_by(session_token=session_token).first()
+        user = user.email
+    return user
 
 
 @app.route("/", methods=["GET"])
@@ -78,7 +86,10 @@ def register():
             return render_template("register.html", errMsg="Password not match or incorrect")
         if email_addr == '' or email_addr is None:
             return render_template("register.html", errMsg="Email incorrect")
-        new_user = Users(email=email_addr, password=password1, secret_number=secret_number)
+
+        hashed_pass = hashlib.sha256(password1.encode()).hexdigest()
+
+        new_user = Users(email=email_addr, password=hashed_pass, secret_number=secret_number)
         new_user.save()
 
         return render_template('message.html', type='success', message="Successfully created new user", redirect=True)
@@ -95,14 +106,19 @@ def login():
         password = request.form.get("password")
 
         user = db.query(Users).filter_by(email=email_addr).first()
+        hased_password = hashlib.sha256(password.encode()).hexdigest()
 
-        if password != user.password:
+        if user.password != hased_password:
             return render_template("login.html", errMsg="Password incorrect")
         if user is None:
             return render_template("login.html", errMsg="User not exist")
 
         response = make_response(render_template("message.html", type="success", message="Succesfuly logged is", redirecti=True))
-        response.set_cookie("user_logged_in", "True")
+
+        session_token = str(uuid.uuid4())
+        user.session_token = session_token
+        user.save()
+        response.set_cookie("session_token", session_token)
         return response
 
 

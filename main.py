@@ -2,11 +2,21 @@ import hashlib
 import uuid
 from flask import Flask, render_template, request, make_response, redirect, url_for
 import random
+import requests
 from sqla_wrapper import SQLAlchemy
 
 app = Flask(__name__)
 
 db = SQLAlchemy("sqlite:///database.sqlite")
+
+# https://openweathermap.org/
+Open_weather_api_key = "api key"
+
+# Vin - https://vindecoder.eu/
+Vincario_api_key = "api key"
+Vincario_secret_key = "secret key"
+id_decode = "decode"
+apiPrefix = "https://api.vindecoder.eu/3.2"
 
 
 class Users(db.Model):
@@ -176,6 +186,58 @@ def profile_page_delete():
         return render_template("message.html", message="Account deleted!", type="success", redirect=True)
     else:
         return render_template("profile_delete.html")
+
+
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    if request.method == "POST":
+
+        location = request.form.get("location")
+        units = request.form.get("units")
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={location}&units={units}&appid={Open_weather_api_key}"
+        api_response = requests.get(url=url)
+        print(api_response)
+        print(api_response.json())
+        # if api_response != "<Response [200]>":
+        #
+        #     return render_template("message.html", message="Wrong weather input!", type="danger", redirect=True)
+        # else:
+        #     return render_template("weather.html", data=api_response.json())
+        return render_template("weather.html", data=api_response.json())
+    else:
+        location = "Ljubljana,SI"
+        units = "metric"
+
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={location}&units={units}&appid={Open_weather_api_key}"
+        api_response = requests.get(url=url)
+        return render_template("weather.html", data=api_response.json())
+
+
+@app.route("/vin", methods=["GET", "POST"])
+def car_vin():
+    if request.method == "POST":
+
+        vin_number = request.form.get("vin")
+
+        controlSum = hashlib.sha1(
+            (vin_number.upper() + "|" + id_decode + "|" + Vincario_api_key + "|" + Vincario_secret_key).encode(
+                'utf-8')).hexdigest()[:10]
+
+        url = apiPrefix + "/" + Vincario_api_key + "/" + controlSum + "/decode/" + vin_number.upper() + ".json"
+        json_data = requests.get(url).json()
+        return render_template("vin.html", data=json_data["decode"])
+
+    else:
+
+        vin_number = "WVWZZZ3CZFE402424"
+
+        controlSum = hashlib.sha1(
+            (vin_number.upper() + "|" + id_decode + "|" + Vincario_api_key + "|" + Vincario_secret_key).encode(
+                'utf-8')).hexdigest()[:10]
+
+        url = apiPrefix + "/" + Vincario_api_key + "/" + controlSum + "/decode/" + vin_number.upper() + ".json"
+        json_data = requests.get(url).json()
+        return render_template("vin.html", data=json_data["decode"])
 
 
 if __name__ == "__main__":

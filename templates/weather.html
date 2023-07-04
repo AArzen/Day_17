@@ -1,0 +1,42 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+<h1>Weather data</h1>
+<dl>
+  <dt>Name</dt>
+  <dd>{{ data.name }}</dd>
+
+  <dt>Weather description</dt>
+  <dd>{{ data.weather[0].description }}</dd>
+
+  <dt>Temperature</dt>
+  <dd>{{ data.main.temp }}</dd>
+
+  <dt>Weather temperature</dt>
+  <dd>{{ data.main.pressure }}</dd>
+
+  <dt>Visibility</dt>
+  <dd>{{ data.visibility }}</dd>
+
+  <dt>Wind speed</dt>
+  <dd>{{ data.wind.speed }}</dd>
+</dl>
+
+<h3>Change location</h3>
+<form method="post" action="/weather">
+  <div class="mb-3">
+    <label for="location" class="form-label">Location</label>
+    <input type="text" class="form-control" id="location" name="location" aria-describedby="locationHelp">
+    <div id="locationHelp" class="form-text">Example: London,UK</div>
+  </div>
+    <div class="mb-3">
+      <label for="inputState">Units</label>
+      <select id="inputState" class="form-control" name="units">
+        <option selected>metric</option>
+        <option>imperial</option>
+      </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock body %}

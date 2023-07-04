@@ -1,0 +1,24 @@
+{% extends "/base.html" %}
+
+{% block body %}
+
+<h1>Car vin number</h1>
+<form method="post" action="/vin">
+  <div class="mb-3">
+    <label for="vin" class="form-label">Vin number</label>
+    <input type="text" class="form-control" id="vin" name="vin">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<h2>Car data</h2>
+
+<dl>
+{% for dict_item in data %}
+   <dt>{{dict_item.label}}</dt>
+   <dd>{{dict_item.value}}</dd>
+{% endfor %}
+</dl>
+
+
+{% endblock body %}
